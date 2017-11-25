@@ -25,19 +25,17 @@ class Pool {
             if (this.maxCount > 0 && this.promisesCount > 0) {
                 let firstPromises = this.promises.slice(0, this.maxCount);
                 this.promises = this.promises.slice(this.maxCount);
-                firstPromises.forEach(promiseObj => {
-                    this.run(func, promiseObj.promise, promiseObj.index);
-                });
+                firstPromises.forEach(promiseObj => this.run(func, promiseObj));
             } else {
                 func(this.results);
             }
         });
     }
 
-    run(func, promise, index) {
-        promise()
-            .then(result => this.onResult(func, result, index))
-            .catch(result => this.onResult(func, result, index));
+    run(func, promiseObj) {
+        promiseObj.promise()
+            .then(result => this.onResult(func, promiseObj.index, result))
+            .catch(result => this.onResult(func, promiseObj.index, result));
     }
 
     onResult(func, index, result) {
@@ -46,8 +44,7 @@ class Pool {
         if (this.promisesCount === this.finished) {
             func(this.results);
         } else if (this.promises.length) {
-            let promiseObj = this.promises.shift();
-            this.run(func, promiseObj.promise, promiseObj.index);
+            this.run(func, this.promises.shift());
         }
     }
 }
