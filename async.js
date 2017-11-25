@@ -11,7 +11,7 @@ let setMaxTime = (time, promise) => () => new Promise((resolve, reject) => {
 class Pool {
     constructor(promises, maxCount, maxTime) {
         this.promises = promises.map((promise, i) => {
-            return { promise: setMaxTime(maxTime, promises[i]), index: i };
+            return { promise: setMaxTime(maxTime, promise), index: i };
         });
         this.promisesCount = promises.length;
         this.maxCount = maxCount;
@@ -44,7 +44,7 @@ class Pool {
         this.finished++;
         if (this.promisesCount === this.finished) {
             func(this.results);
-        } else {
+        } else if (this.promises.length) {
             let promiseObj = this.promises.shift();
             this.run(func, promiseObj.promise, promiseObj.index);
         }
