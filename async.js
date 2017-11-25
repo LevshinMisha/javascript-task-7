@@ -4,8 +4,9 @@ exports.isStar = true;
 exports.runParallel = runParallel;
 
 let setMaxTime = (time, promise) => () => new Promise((resolve, reject) => {
-    promise().then(resolve, reject);
-    setTimeout(() => reject(new Error('Timeout ¯\\_(ツ)_/¯ ')), time);
+    promise().then(resolve)
+        .catch(reject);
+    setTimeout(() => reject(new Error('Promise timeout')), time);
 });
 
 class Pool {
@@ -21,7 +22,7 @@ class Pool {
 
     start() {
         return new Promise(func => {
-            if (this.maxCount > 0 && this.promisesCount) {
+            if (this.maxCount > 0 && this.promisesCount > 0) {
                 let firstPromises = this.promises.slice(0, this.maxCount);
                 this.promises = this.promises.slice(this.maxCount);
                 firstPromises.forEach(promiseObj => {
